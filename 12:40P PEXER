@@ -1,0 +1,307 @@
+using System;
+using System.CodeDom;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PExer02
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var dl = new DoublyLinkedList<string>();
+            //dl.AddToHead(new Node<string>("J"));
+            //dl.AddToHead(new Node<string>("I"));
+            //dl.AddToHead(new Node<string>("H"));
+            //dl.AddToHead(new Node<string>("G"));
+            //dl.AddToHead(new Node<string>("F"));
+            //dl.AddToHead(new Node<string>("E"));
+            //dl.AddToHead(new Node<string>("D"));
+            //dl.AddToHead(new Node<string>("C"));
+            //dl.AddToHead(new Node<string>("B"));
+            //dl.AddToHead(new Node<string>("A"));
+            //dl.AddToTail(new Node<string>("-A"));
+
+
+            ////DoublyLinkedList.PrintDoubleNode(dl); ////STATIC METHOD
+            //dl.PrintDoubleNode();
+            ////var x = dl.Delete("E");
+            ////Console.WriteLine();
+            ////Console.WriteLine("DELETE WAS:{0}", x);
+            ////dl.PrintDoubleNode();
+            //Console.WriteLine(dl.Count);
+            //var y = dl.DeleteFromPosition(10);
+            //Console.WriteLine("Delete was:" + y);
+            //dl.PrintDoubleNode();
+            //var yx = dl.DeleteFromPosition(0);
+            //Console.WriteLine("Delete was:" + y);
+            //dl.PrintDoubleNode();
+            //var yxz = dl.Search("d");
+            //Console.WriteLine("SEARCHING was:" + yxz);
+
+            //Node<string> z = dl.SearchForPosition(7);
+            //Console.WriteLine(z.Data);
+
+            //Console.ReadLine();
+
+            var d1 = new DoublyLinkedList<String>();
+            var d2 = new DoublyLinkedList<String>();
+            d1.AddToHead(new Node<string>("A"));
+            d1.AddToHead(new Node<string>("B"));
+            d1.AddToHead(new Node<string>("C"));
+            d2.AddToHead(new Node<string>("C"));
+            d2.AddToHead(new Node<string>("B"));
+            d2.AddToHead(new Node<string>("A"));
+            d1.PrintDoubleNode();
+            d2.PrintDoubleNode();
+            DoublyLinkedList<string>.TwoDoublyComparer(d1, d2);
+            //d2.SearchForPosition(4);
+            Console.WriteLine("");
+            Console.WriteLine("PRINT AGAIN CHECKING");
+            Console.WriteLine("");
+            Console.WriteLine("");
+            d1.PrintDoubleNode();
+            d2.PrintDoubleNode();
+
+            Console.ReadLine();
+        }
+        public class DoublyLinkedList<T>        //1 HOUR
+        {
+            public Node<T> Head { get; protected set; } //cant set a head 
+            public Node<T> Tail { get; protected set; }
+            public int Count { get; set; }
+
+            public DoublyLinkedList()
+            {
+                this.Head = null;
+                this.Tail = null;
+                this.Count = -1;
+            }
+            public void AddToHead(Node<T> node)
+            {
+                if (Head != null)
+                {
+                    Head.Prev = node;
+                    node.Next = Head;
+                    Head = node;
+                }
+                else
+                {
+                    Head = node;
+                    Tail = Head;
+                }
+                Count++;
+
+            }
+
+            public void AddToTail(Node<T> node)
+            {
+                if (Tail != null)
+                {
+                    //node.Prev = node;
+                    //node.Next = Tail;
+                    //Tail = node;
+                    
+                    Tail.Next = node;
+                    node.Prev = Tail;
+                    Tail = node;
+                    Count++;
+                }
+                else
+                {
+                    Tail = node;
+                    Head = Tail;
+                    Count++;
+                }
+                
+            }
+
+            public bool Delete(T data)
+            {
+                var tmp = Head;
+                while (tmp != null)
+                {
+                    if (tmp.Data.Equals(data))
+                    {
+                        if (tmp == Head)
+                        {
+                            DeleteFromHead();
+                            Count--;
+                        }
+                        else if (tmp == Tail)
+                        {
+                            DeleteFromTail();
+                            Count--;
+                        }
+                        else
+                        {
+                            var newprev = tmp.Prev;
+                            var newnext = tmp.Next;
+                            newprev.Next = tmp.Next;
+                            newnext.Prev = tmp.Prev;
+                            Count--;
+                        }
+                        return true;
+                    }
+                    tmp = tmp.Next;
+                }
+                return false;
+            }
+            public bool DeleteFromPosition(int position)
+            {
+                var tmp = Head;
+                if (position > Count)
+                {
+                    return false;
+                }
+                if (position < 0)
+                {
+                    return false;
+                }
+                else
+                { 
+                int tmpPos = position;      //3
+                int index = 0;
+                while (index != tmpPos)     
+                {
+                    tmp = tmp.Next;         //A B   C
+                    index++;                //1 2   3
+                }
+                //if (tmp == Head)
+                //{
+                //    DeleteFromHead();
+                //}
+                //else if (tmp == Tail)
+                //{
+                //    DeleteFromTail();
+                //}
+                //else
+                //{
+                //    var newprev = tmp.Prev;
+                //    var newnext = tmp.Next;
+                //    newprev.Next = tmp.Next;
+                //    newnext.Prev = tmp.Prev;
+                //}
+                //return true;
+                    GeneralDelete(tmp);
+                    return true;
+                }
+
+            }
+
+            public bool Search(T data)  //D
+            {
+                var tmp = Head;         //A
+                while(tmp != null)
+                {
+                    if (Equals(tmp.Data, data))
+                    {
+                        return true;
+                    }
+                    tmp = tmp.Next;
+                }
+                return false;
+            }
+
+            public Node<T> SearchForPosition(int position)
+            {
+                var tmp = Head;
+                var error = "Range" + position + "was out of Bounds";
+                if (position > Count || position < 0)
+                {
+                    throw new ArgumentOutOfRangeException(error);
+                }
+                else
+                {
+                    int tmpPos = position;
+                    int index = 0;
+                    while (index != position)
+                    {
+                        tmp = tmp.Next;
+                        index++;
+                    }
+                    return tmp;
+                }
+            }
+
+            public static void TwoDoublyComparer<T>(DoublyLinkedList<T> d1, DoublyLinkedList<T> d2) 
+            {
+                var b = 
+
+            }
+
+            public void GeneralDelete(Node<T> node)
+            {
+                if (node == Head)
+                {
+                    DeleteFromHead();
+                    Count--;
+                }
+                else if (node == Tail)
+                {
+                    DeleteFromTail();
+                    Count--;
+                }
+                else
+                {
+                    var newprev = node.Prev;
+                    var newnext = node.Next;
+                    newprev.Next = node.Next;
+                    newnext.Prev = node.Prev;
+                    Count--;
+                }
+            }
+
+            public void DeleteFromHead()
+            {
+
+                Head = Head.Next;
+                Head.Prev = null;
+
+
+            }
+            public void DeleteFromTail()
+            {
+                Tail = Tail.Prev;
+                Tail.Next = null;
+
+            }
+            public void PrintDoubleNode()
+            {
+                var temp = Head;
+                Console.WriteLine("Doubly set");
+                while (temp != null)
+                {
+                    Console.Write(temp.Data + " ");
+                    temp = temp.Next;
+                }
+                Console.WriteLine();
+            }
+
+
+        }
+
+    }
+    public class Node<T>
+    {
+        public T Data { get; set; }
+        public Node<T> Next { get; set; }
+        public Node<T> Prev { get; set; }
+
+        public Node()
+        {
+        }
+
+        public Node(T data)
+        {
+            Data = data;
+        }
+    }
+    
+}
+
